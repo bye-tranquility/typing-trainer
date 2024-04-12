@@ -8,68 +8,96 @@ FONT = 'Monospace'
 FILENAME = '../assets/texts.txt'
 
 
-class TypingTesterGUI:
-    def __init__(self):
+class MyLabel(tk.Label):
+    def __init__(self, frame, location, textvar):
+        super().__init__(frame, textvariable=textvar, font=(FONT, 20), fg="grey")
+        self.pack(side=location, padx=10, pady=5)
+
+class TextBox(tk.Entry):
+    def __init__(self, frame, template_textvar, stats_textvar):
+        super().__init__(frame, width=40, font=(FONT, 24), highlightthickness=0)
+        self.pack(side=tk.TOP, padx=10, pady=5)
+        self.bind("<KeyRelease>", self.handle_typing)
+        self.config(bg=frame.cget('bg'))
         self.timer = Timer()
         self.text_manager = TextManager(filename=FILENAME)
 
-        self.window = tk.Tk()
-        self.window.title(TITLE)
-        self.window.geometry("800x400")
-        self.window.minsize(width=800, height=400)
-        self.frame = tk.Frame(self.window)
-        self.create_widgets()
-        self.frame.pack(expand=True)
+        self.template_textvar = template_textvar
+        self.stats_textvar = stats_textvar
 
-        self.window.mainloop()
-
-    def create_widgets(self) -> None:
-        self.template_label = tk.Label(self.frame, text=self.text_manager.get_random_text(), font=(FONT, 24), fg="grey")
-        self.template_label.grid(row=0, column=0, columnspan=2, padx=5, pady=10)
-
-        self.input_entry = tk.Entry(self.frame, width=40, font=(FONT, 24), highlightthickness=0)
-        self.input_entry.grid(row=1, column=0, columnspan=2, padx=5, pady=10)
-        self.input_entry.bind("<KeyRelease>", self.handle_typing)
-        self.input_entry.config(bg=self.frame.cget('bg'))
-
-        self.speed_label = tk.Label(self.frame, text=DEFAULT_STATS, font=(FONT, 18))
-        self.speed_label.grid(row=2, column=0, columnspan=2, padx=5, pady=10)
-
-        self.reset_button = tk.Button(self.frame, text="RESET", font=(FONT, 18), command=self.reset)
-        self.reset_button.grid(row=3, column=0, padx=7, pady=10, sticky="e")
-
-        self.quit_button = tk.Button(self.frame, text="QUIT", font=(FONT, 18), command=self.window.quit)
-        self.quit_button.grid(row=3, column=1, padx=5, pady=10, sticky="w")
+        # Устанавливаем значение по умолчанию
+        self.template_textvar.set(self.text_manager.get_random_text())
+        self.stats_textvar.set(DEFAULT_STATS)
 
     def handle_typing(self, event):
-        if not self.timer.is_running():
-            self.timer.start()
-            self.update_stats()
+        if self.screen_ix == 1 and self.cget("state") == tk.NORMAL:
+            if not self.timer.is_running():
+                self.timer.start()
+                self.update_stats()
 
-        if not self.template_label.cget('text').startswith(self.input_entry.get()):
-            self.input_entry.config(fg="red")
+        if not self.template_textvar.get().startswith(self.get()):
+            self.config(fg="red")
         else:
-            self.input_entry.config(fg="black")
+            self.config(fg="black")
 
-        if self.template_label.cget('text') == self.input_entry.get():
+        if self.template_textvar.get() == self.get():
             self.timer.stop()
-            self.input_entry.config(fg="green")
-
-    def reset(self):
-        self.timer.stop()
-        self.speed_label.config(text=DEFAULT_STATS)
-        self.template_label.config(text=self.text_manager.get_random_text())
-        self.input_entry.delete(0, tk.END)
+            self.config(fg="green")
 
     def calculate_stats(self):
         elapsed_time = self.timer.elapsed_time()
-        cps = len(self.input_entry.get()) / elapsed_time
+        cps = len(self.get()) / elapsed_time
         cpm = cps * 60
-        wps = len(self.input_entry.get().split(" ")) / elapsed_time
+        wps = len(self.get().split(" ")) / elapsed_time
         wpm = wps * 60
         self.speed_label.config(text=f" Stats: \n{cpm:.2f} CPM\n{wpm:.2f} WPM")
 
     def update_stats(self):
         self.calculate_stats()
         if self.timer.is_running():
-            self.window.after(100, self.update_stats)
+            self.after(100, self.update_stats)
+
+    def reset(self):
+        self.timer.stop()
+        self.stats_textvar.set(DEFAULT_STATS)
+        self.template_textvar.set(self.text_manager.get_random_text())
+        self.delete(0, tk.END)
+
+class MyButton(tk.Button):
+    def __init__(self, frame, location, txt, command):
+        super().__init__(frame, text=txt, font=(FONT, 12), command=command)
+        self.pack(side=location, padx=8, pady=5)
+
+class MyFrame(tk.Frame):
+    def __init__(self, window, location):
+        super().__init__(window)
+        self.pack(side=location, expand=True, fill=tk.BOTH) 
+        
+class MyWindow(tk.Tk):
+    def __init__(self):
+        super().__init__()
+
+        self.title("This is my typing trainer")
+        self.geometry("800x400")
+        self.minsize(width=800, height=400)
+        self.protocol("WM_DELETE_WINDOW", self.quit)
+
+        # Создаём Frame'ы
+        top_frame = MyFrame(self, tk.TOP)
+        center_frame = MyFrame(self, tk.TOP)
+        bottom_frame = MyFrame(self, tk.BOTTOM)
+
+        # Создаём StringVar'ы для Label'ов
+        template_textvar = tk.StringVar()
+        stats_textvar = tk.StringVar()
+
+        # Инициализируем TextBox
+        txt_box = TextBox(center_frame, template_textvar, stats_textvar)
+
+        # Создаём Label'ы
+        MyLabel(top_frame, tk.TOP, template_textvar)
+        MyLabel(top_frame, tk.TOP, stats_textvar)
+
+        # Cоздаём Button'ы
+        MyButton(bottom_frame, tk.BOTTOM, "RESET", txt_box.reset)
+        MyButton(bottom_frame, tk.BOTTOM, "QUIT", self.quit)
