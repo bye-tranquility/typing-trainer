@@ -3,7 +3,7 @@ from tkinter import filedialog
 
 
 class TextManager:
-    def __init__(self, filename):
+    def __init__(self, filename: str):
         self.filename = filename
 
     def get_random_text(self) -> str:
@@ -11,7 +11,7 @@ class TextManager:
             lines = file.read().split('\n')
             return random.choice(lines)
 
-    def load_file(self):
+    def load_file(self) -> None:
         file_path = filedialog.askopenfilename(filetypes=[("Text Files", "*.txt")])
         if file_path:
             with open(file_path, 'r') as file_to_read:

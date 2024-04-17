@@ -1,5 +1,6 @@
 import time
 
+
 class Timer:
     def __init__(self):
         self.start_time: int = 0
@@ -13,7 +14,7 @@ class Timer:
     def stop(self) -> None:
         self.running = False
 
-    def elapsed_time(self) -> int:
+    def elapsed_time(self) -> float:
         return time.time() - self.start_time
 
     def is_running(self) -> bool:

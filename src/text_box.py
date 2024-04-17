@@ -3,11 +3,11 @@ import os
 from .timer import Timer
 from .text_manager import TextManager
 
-DEFAULT_STATS = "Stats \n0.00 CPM\n0.00 WPM"
-FONT = 'Monospace'
-TEXTS_SOURCE = '../assets/texts.txt'
-STATS_FILE = '../tmp/stats.txt'
-STATS_DIR = '../tmp'
+DEFAULT_STATS: str = "Stats \n0.00 CPM\n0.00 WPM"
+FONT: str = 'Monospace'
+TEXTS_SOURCE: str = 'assets/texts.txt'
+STATS_FILE: str = 'tmp/stats.txt'
+STATS_DIR: str = 'tmp'
 
 
 class TextBox(tk.Text):
@@ -17,9 +17,7 @@ class TextBox(tk.Text):
                          font=(FONT, 16), borderwidth=4)
         self.pack(expand=True, fill="both")
 
-        # self.pack(side=tk.TOP, padx=10, pady=5)
         self.bind("<KeyRelease>", self.handle_typing)
-        # self.bind_all('<Key>', self.handle_typing)
         self.timer = Timer()
         self.text_manager = TextManager(filename=TEXTS_SOURCE)
 
@@ -33,11 +31,11 @@ class TextBox(tk.Text):
         self.mistakes = 0
         self.round = 0
 
-    def change_status(self):
+    def change_status(self) -> None:
         self.screen_ix = (self.screen_ix + 1) % 2
         self.show()
 
-    def show(self):
+    def show(self) -> None:
         self.config(state=tk.NORMAL)
         self.delete("0.0", tk.END)
         self.config(fg="black")
@@ -48,7 +46,7 @@ class TextBox(tk.Text):
             self.template_textvar.set(self.text_manager.get_random_text())
             self.stats_textvar.set(DEFAULT_STATS)
 
-    def handle_typing(self, event):
+    def handle_typing(self, event) -> None:
         if self.screen_ix == 1 and self.cget("state") == tk.NORMAL:
             if not self.timer.is_running():
                 self.timer.start()
@@ -70,7 +68,7 @@ class TextBox(tk.Text):
         else:
             self.change_status()
 
-    def calculate_stats(self):
+    def calculate_stats(self) -> None:
         elapsed_time = self.timer.elapsed_time()
         cps = len(self.get("1.0", tk.END)) / elapsed_time
         cpm = cps * 60
@@ -78,25 +76,26 @@ class TextBox(tk.Text):
         wpm = wps * 60
         self.stats_textvar.set(f"Stats: \n{cpm:.2f} CPM\n{wpm:.2f} WPM")
 
-    def save_stats(self):
+    def save_stats(self) -> None:
         stats = self.stats_textvar.get()[7:]
         if not os.path.exists(STATS_DIR):
             os.makedirs(STATS_DIR)
         with open(STATS_FILE, 'a') as file:
             file.write(f'ROUND {self.round}' + stats + '\n' + f"{self.mistakes} mistake(s)" + '\n' + '\n')
 
-    def update_stats(self):
+    def update_stats(self) -> None:
         self.calculate_stats()
         if self.timer.is_running():
             self.after(100, self.update_stats)
 
-    def reset(self):
+    def reset(self) -> None:
         self.mistakes = 0
         self.timer.stop()
         self.screen_ix = 1
         self.show()
 
-    def cleanup(self):
+    @staticmethod
+    def cleanup() -> None:
         if os.path.exists(STATS_FILE):
             os.remove(STATS_FILE)
             os.rmdir(STATS_DIR)

@@ -1,6 +1,6 @@
 import tkinter as tk
 
-FONT = 'Monospace'
+FONT: str = 'Monospace'
 
 
 class MyLabel(tk.Label):

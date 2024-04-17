@@ -2,7 +2,7 @@ import tkinter as tk
 import os
 
 FONT = 'Monospace'
-STATS_FILE = '../tmp/stats.txt'
+STATS_FILE = 'tmp/stats.txt'
 
 
 class ResultsWindow(tk.Toplevel):

@@ -33,4 +33,4 @@ class MainWindow(tk.Tk):
         MyButton(bottom_frame, tk.LEFT, "RESULTS", lambda: ResultsWindow(self))
         MyButton(bottom_frame, tk.RIGHT, "LOAD FILE", txt_box.text_manager.load_file)
 
-        atexit.register(txt_box.cleanup)
+        atexit.register(TextBox.cleanup)
