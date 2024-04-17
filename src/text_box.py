@@ -25,11 +25,11 @@ class TextBox(tk.Text):
         self.stats_textvar = stats_textvar
 
         self.screens = ['Congrats', 'Training']
-        self.screen_ix = 0
+        self.screen_ix: int = 0
         self.insert(tk.END, "Welcome to my typing trainer!\n\nPress any key to proceed.\n")
 
-        self.mistakes = 0
-        self.round = 0
+        self.mistakes: int = 0
+        self.round: int = 0
 
     def change_status(self) -> None:
         self.screen_ix = (self.screen_ix + 1) % 2
