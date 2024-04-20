@@ -18,6 +18,7 @@
 ```
 git clone https://github.com/bye-tranquility/python-2024-Aikashev-Maxim.git
 cd python-2024-Aikashev-Maxim/
+pip install -r requirements.txt
 python3 main.py
 ```
 
