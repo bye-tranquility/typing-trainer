@@ -6,7 +6,13 @@ from .text_box import TextBox
 
 
 class MainWindow(tk.Tk):
+    """
+    Основное окно графического интерфейса программы тренажёра печати.
+    """
     def __init__(self):
+        """
+        Инициализирует графический интерфейс и настраивает расположение и элементы управления.
+        """
         super().__init__()
 
         self.title("The typing trainer")
